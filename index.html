@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alberta Air Quality (AQHI) Tracker</title><style>body{font-family:system-ui,sans-serif;background:#0b1020;color:#e6e9f2;max-width:900px;margin:auto;padding:20px}
+.big{font-size:2.6em;font-weight:700;color:#6ee7b7}.card{background:#151b33;border-radius:12px;padding:16px;margin:12px 0}canvas{width:100%;height:300px}
+small,a{color:#9aa4c7}.btn{display:inline-block;background:#db2777;color:#fff;padding:8px 14px;border-radius:8px;text-decoration:none}</style></head><body>
+<h1>Alberta Air Quality (AQHI) Tracker</h1><div class="card"><div class="big" id="cur">…</div><div id="meta"></div></div>
+<div class="card"><canvas id="c" width="860" height="300"></canvas><div id="stats"></div></div>
+<p><a class="btn" href="https://github.com/sponsors/maymankhan1-web">♥ Sponsor this project</a></p>
+<p><small>Data: Environment and Climate Change Canada, MSC GeoMet API (api.weather.gc.ca). Refreshed by GitHub Actions. Not affiliated with or endorsed by the data provider.</small></p>
+<script>const c=document.getElementById('c'),g=c.getContext('2d');function line(v,a,b){if(!v.length)return;const W=c.width,H=c.height,mx=Math.max(...v),mn=Math.min(...v);
+g.strokeStyle='#334';g.fillStyle='#9aa4c7';g.font='12px sans-serif';
+for(let i=0;i<=4;i++){const y=H-20-(H-30)*i/4;g.beginPath();g.moveTo(40,y);g.lineTo(W,y);g.stroke();g.fillText((mn+(mx-mn)*i/4).toFixed(1),2,y+4)}
+g.strokeStyle='#6ee7b7';g.lineWidth=2;g.beginPath();v.forEach((x,i)=>{const X=40+(W-45)*i/Math.max(1,v.length-1),Y=H-20-(H-30)*(x-mn)/((mx-mn)||1);i?g.lineTo(X,Y):g.moveTo(X,Y)});g.stroke();
+g.fillText(a,40,H-4);g.fillText(b,W-150,H-4);
+document.getElementById('stats').textContent='Min '+mn+' · Max '+mx+' · Points '+v.length;}
+fetch('data/latest.json?'+Date.now()).then(r=>r.json()).then(d=>{const s=d.stations,cal=s['Calgary']||[];const last=cal[cal.length-1];
+document.getElementById('cur').textContent=last?'Calgary AQHI '+last.aqhi:'n/a';
+document.getElementById('meta').textContent=Object.entries(s).filter(([k,v])=>v.length).map(([k,v])=>k+': '+v[v.length-1].aqhi).join(' · ')+' · Updated '+d.updated;
+line(cal.map(r=>r.aqhi),cal.length?cal[0].time:'',last?last.time:'');});</script></body></html>
